@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: MCP Abilities - Plugin Check
- * Plugin URI: https://devenia.com
+ * Plugin Name: MCP Abilities - Check Runner
+ * Plugin URI: https://github.com/bjornfix/mcp-abilities-check-runner
  * Description: MCP bridge for the official WordPress.org Plugin Check plugin.
- * Version: 0.1.0
- * Author: Devenia
- * Author URI: https://devenia.com
+ * Version: 0.1.1
+ * Author: basicus
+ * Author URI: https://profiles.wordpress.org/basicus/
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Requires at least: 6.9
@@ -23,12 +23,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Check if Abilities API is available.
  */
-function mcp_plugin_check_dependencies_ok(): bool {
+function mcp_check_runner_dependencies_ok(): bool {
 	if ( ! function_exists( 'wp_register_ability' ) ) {
 		add_action(
 			'admin_notices',
 			static function (): void {
-				echo '<div class="notice notice-error"><p><strong>MCP Abilities - Plugin Check</strong> requires the Abilities API plugin to be installed and activated.</p></div>';
+				echo '<div class="notice notice-error"><p><strong>MCP Abilities - Check Runner</strong> requires the Abilities API plugin to be installed and activated.</p></div>';
 			}
 		);
 		return false;
@@ -44,7 +44,7 @@ function mcp_plugin_check_dependencies_ok(): bool {
  * @param string              $type Result type.
  * @return array<int, array<string, mixed>>
  */
-function mcp_plugin_check_flatten_results( array $grouped, string $type ): array {
+function mcp_check_runner_flatten_results( array $grouped, string $type ): array {
 	$flat = array();
 
 	foreach ( $grouped as $file => $lines ) {
@@ -87,7 +87,7 @@ function mcp_plugin_check_flatten_results( array $grouped, string $type ): array
  * @param array<string, mixed> $input Ability input.
  * @return array<string, mixed>
  */
-function mcp_plugin_check_run( array $input ): array {
+function mcp_check_runner_run( array $input ): array {
 	if ( ! class_exists( 'WordPress\\Plugin_Check\\Checker\\AJAX_Runner' ) ) {
 		return array(
 			'success' => false,
@@ -103,35 +103,13 @@ function mcp_plugin_check_run( array $input ): array {
 		);
 	}
 
-	$checks = array();
-	if ( isset( $input['checks'] ) && is_array( $input['checks'] ) ) {
-		foreach ( $input['checks'] as $check ) {
-			$check = sanitize_key( (string) $check );
-			if ( '' !== $check ) {
-				$checks[] = $check;
-			}
-		}
-	}
-
-	$categories = array();
-	if ( isset( $input['categories'] ) && is_array( $input['categories'] ) ) {
-		foreach ( $input['categories'] as $category ) {
-			$category = sanitize_key( (string) $category );
-			if ( '' !== $category ) {
-				$categories[] = $category;
-			}
-		}
-	}
-
-	$include_experimental = (bool) ( $input['include_experimental'] ?? false );
+	$include_experimental = true;
 	$mode                 = isset( $input['mode'] ) && 'update' === $input['mode'] ? 'update' : 'new';
 	$max_results          = isset( $input['max_results'] ) ? max( 1, min( 500, (int) $input['max_results'] ) ) : 100;
 
 	try {
 		$runner = new WordPress\Plugin_Check\Checker\AJAX_Runner();
 		$runner->set_experimental_flag( $include_experimental );
-		$runner->set_check_slugs( array_values( array_unique( $checks ) ) );
-		$runner->set_categories( array_values( array_unique( $categories ) ) );
 		$runner->set_plugin( $plugin );
 		$runner->set_slug( '' );
 		$runner->set_mode( $mode );
@@ -148,32 +126,42 @@ function mcp_plugin_check_run( array $input ): array {
 	$errors   = $results->get_errors();
 	$warnings = $results->get_warnings();
 	$flat     = array_merge(
-		mcp_plugin_check_flatten_results( $errors, 'error' ),
-		mcp_plugin_check_flatten_results( $warnings, 'warning' )
+		mcp_check_runner_flatten_results( $errors, 'error' ),
+		mcp_check_runner_flatten_results( $warnings, 'warning' )
 	);
+	$error_count   = method_exists( $results, 'get_error_count' ) ? (int) $results->get_error_count() : count( mcp_check_runner_flatten_results( $errors, 'error' ) );
+	$warning_count = method_exists( $results, 'get_warning_count' ) ? (int) $results->get_warning_count() : count( mcp_check_runner_flatten_results( $warnings, 'warning' ) );
+	$passed        = 0 === $error_count && 0 === $warning_count;
 
 	return array(
-		'success'              => true,
+		'success'              => $passed,
+		'completed'            => true,
+		'passed'               => $passed,
+		'policy'               => 'all-checks-zero-warnings',
 		'plugin'               => $plugin,
 		'mode'                 => $mode,
 		'include_experimental' => $include_experimental,
-		'error_count'          => method_exists( $results, 'get_error_count' ) ? (int) $results->get_error_count() : count( mcp_plugin_check_flatten_results( $errors, 'error' ) ),
-		'warning_count'        => method_exists( $results, 'get_warning_count' ) ? (int) $results->get_warning_count() : count( mcp_plugin_check_flatten_results( $warnings, 'warning' ) ),
+		'checks'               => 'all',
+		'categories'           => 'all',
+		'error_count'          => $error_count,
+		'warning_count'        => $warning_count,
 		'results'              => array_slice( $flat, 0, $max_results ),
 		'truncated'            => count( $flat ) > $max_results,
-		'message'              => sprintf(
-			'Plugin Check completed with %d errors and %d warnings.',
-			method_exists( $results, 'get_error_count' ) ? (int) $results->get_error_count() : 0,
-			method_exists( $results, 'get_warning_count' ) ? (int) $results->get_warning_count() : 0
-		),
+		'message'              => $passed
+			? 'Plugin Check passed all checks with zero warnings.'
+			: sprintf(
+				'Plugin Check failed all-checks-zero-warnings policy with %d errors and %d warnings.',
+				$error_count,
+				$warning_count
+			),
 	);
 }
 
 /**
  * Register Plugin Check abilities.
  */
-function mcp_register_plugin_check_abilities(): void {
-	if ( ! mcp_plugin_check_dependencies_ok() ) {
+function mcp_register_check_runner_abilities(): void {
+	if ( ! mcp_check_runner_dependencies_ok() ) {
 		return;
 	}
 
@@ -189,16 +177,22 @@ function mcp_register_plugin_check_abilities(): void {
 				'properties'           => array(
 					'plugin'               => array( 'type' => 'string' ),
 					'checks'               => array(
-						'type'    => 'array',
-						'items'   => array( 'type' => 'string' ),
-						'default' => array(),
+						'type'        => 'array',
+						'description' => 'Deprecated and ignored. The ability always runs all available checks.',
+						'items'       => array( 'type' => 'string' ),
+						'default'     => array(),
 					),
 					'categories'           => array(
-						'type'    => 'array',
-						'items'   => array( 'type' => 'string' ),
-						'default' => array(),
+						'type'        => 'array',
+						'description' => 'Deprecated and ignored. The ability always runs all check categories.',
+						'items'       => array( 'type' => 'string' ),
+						'default'     => array(),
 					),
-					'include_experimental' => array( 'type' => 'boolean', 'default' => false ),
+					'include_experimental' => array(
+						'type'        => 'boolean',
+						'description' => 'Deprecated and ignored. Experimental checks are always included.',
+						'default'     => true,
+					),
 					'mode'                 => array(
 						'type'    => 'string',
 						'enum'    => array( 'new', 'update' ),
@@ -212,7 +206,14 @@ function mcp_register_plugin_check_abilities(): void {
 				'type'       => 'object',
 				'properties' => array(
 					'success'       => array( 'type' => 'boolean' ),
+					'completed'     => array( 'type' => 'boolean' ),
+					'passed'        => array( 'type' => 'boolean' ),
+					'policy'        => array( 'type' => 'string' ),
 					'plugin'        => array( 'type' => 'string' ),
+					'mode'          => array( 'type' => 'string' ),
+					'include_experimental' => array( 'type' => 'boolean' ),
+					'checks'        => array( 'type' => 'string' ),
+					'categories'    => array( 'type' => 'string' ),
 					'error_count'   => array( 'type' => 'integer' ),
 					'warning_count' => array( 'type' => 'integer' ),
 					'results'       => array( 'type' => 'array' ),
@@ -221,7 +222,7 @@ function mcp_register_plugin_check_abilities(): void {
 				),
 			),
 			'execute_callback'    => static function ( array $input = array() ): array {
-				return mcp_plugin_check_run( $input );
+				return mcp_check_runner_run( $input );
 			},
 			'permission_callback' => static function (): bool {
 				return current_user_can( 'activate_plugins' );
@@ -236,4 +237,4 @@ function mcp_register_plugin_check_abilities(): void {
 		)
 	);
 }
-add_action( 'wp_abilities_api_init', 'mcp_register_plugin_check_abilities' );
+add_action( 'wp_abilities_api_init', 'mcp_register_check_runner_abilities' );

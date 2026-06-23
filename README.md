@@ -1,14 +1,14 @@
-# MCP Abilities - Plugin Check
+# MCP Abilities - Check Runner
 
 MCP bridge for the official WordPress.org Plugin Check plugin.
 
-[![GitHub release](https://img.shields.io/github/v/release/bjornfix/mcp-abilities-plugin-check)](https://github.com/bjornfix/mcp-abilities-plugin-check/releases)
+[![GitHub release](https://img.shields.io/github/v/release/bjornfix/mcp-abilities-check-runner)](https://github.com/bjornfix/mcp-abilities-check-runner/releases)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/gpl-2.0)
 [![WordPress](https://img.shields.io/badge/WordPress-6.9%2B-blue.svg)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple.svg)](https://php.net)
 
 **Tested up to:** 7.0
-**Stable tag:** 0.1.0
+**Stable tag:** 0.1.1
 **License:** GPLv2 or later
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,7 +16,7 @@ MCP bridge for the official WordPress.org Plugin Check plugin.
 
 MCP bridge for the official WordPress.org Plugin Check plugin.
 
-This plugin is part of the Devenia MCP abilities ecosystem. It gives an MCP-capable agent a focused, authenticated way to work with Plugin Check work inside WordPress through MCP.
+This plugin is part of the MCP abilities ecosystem. It gives an MCP-capable agent a focused, authenticated way to work with Plugin Check work inside WordPress through MCP.
 
 **Example:** "Handle this WordPress maintenance task directly." - The agent can inspect the site, call the relevant ability, and return the result without making the human click through wp-admin for every step.
 
@@ -83,10 +83,9 @@ It is especially useful when the manual version is repetitive enough that import
 
 ## Documentation
 
-Start with the main plugin page and base stack documentation:
+Start with the base stack documentation:
 
-- [MCP Expose Abilities](https://devenia.com/plugins/mcp-expose-abilities/)
-- [Plugin Page](https://devenia.com/plugins/mcp-expose-abilities/#add-ons)
+- [MCP Expose Abilities](https://github.com/bjornfix/mcp-expose-abilities)
 - [Getting Started](https://github.com/bjornfix/mcp-expose-abilities/wiki/Getting-Started)
 - [Install Order and Dependencies](https://github.com/bjornfix/mcp-expose-abilities/wiki/Install-Order-and-Dependencies)
 
@@ -101,7 +100,7 @@ If you are new to the stack, use this order:
 1. Install **Abilities API**.
 2. Install **MCP Adapter**.
 3. Install **MCP Expose Abilities**.
-4. Install **MCP Abilities - Plugin Check**.
+4. Install **MCP Abilities - Check Runner**.
 5. Confirm the new abilities appear in discovery.
 6. Give the agent a clear task that uses this add-on.
 
@@ -109,7 +108,7 @@ If you skip base-stack verification and start with add-ons immediately, troubles
 
 ## Abilities
 
-- `plugin-check/run`
+- `plugin-check/run` - always runs the complete check set, including experimental checks. Warnings fail the gate.
 
 ## Notes
 
@@ -117,7 +116,13 @@ The official Plugin Check plugin must be installed and active on the target Word
 
 ## Changelog
 
-### Current
+### 0.1.1
+
+- Changed `plugin-check/run` to always run the complete Plugin Check set.
+- Deprecated caller-side check/category filtering so release gates cannot accidentally skip checks.
+- Treat warnings as failed gate results; success is only true with zero errors and zero warnings.
+
+### 0.1.0
 
 - Documentation aligned with the public plugin README standard.
 
@@ -131,13 +136,12 @@ GPL-2.0+
 
 ## Author
 
-[Devenia](https://devenia.com) - We've been doing SEO and web development since 1993.
+[basicus](https://profiles.wordpress.org/basicus/)
 
 ## Links
 
-- [Plugin Page](https://devenia.com/plugins/mcp-expose-abilities/#add-ons)
-- [MCP Expose Abilities](https://devenia.com/plugins/mcp-expose-abilities/)
-- [GitHub Releases](https://github.com/bjornfix/mcp-abilities-plugin-check/releases)
+- [MCP Expose Abilities](https://github.com/bjornfix/mcp-expose-abilities)
+- [GitHub Releases](https://github.com/bjornfix/mcp-abilities-check-runner/releases)
 
 ## Star and Share
 

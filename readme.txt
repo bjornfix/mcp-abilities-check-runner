@@ -1,10 +1,10 @@
-=== MCP Abilities - Plugin Check ===
-Contributors: devenia
+=== MCP Abilities - Check Runner ===
+Contributors: basicus
 Tags: mcp, abilities, plugin-check
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,9 +14,16 @@ MCP bridge for the official WordPress.org Plugin Check plugin.
 
 This plugin exposes `plugin-check/run`, which runs the official Plugin Check runner against an installed plugin and returns structured errors and warnings.
 
+The ability always runs the complete check set, including experimental checks. Check and category filters are ignored for release-gate consistency. Warnings are not acceptable: the ability only reports success when there are zero errors and zero warnings.
+
 The official `plugin-check` plugin must be installed and active.
 
 == Changelog ==
+
+= 0.1.1 =
+* Always run all Plugin Check checks, including experimental checks.
+* Ignore check/category filters so callers cannot accidentally skip checks.
+* Treat warnings as failed gate results.
 
 = 0.1.0 =
 * Initial MCP bridge for WordPress.org Plugin Check.
