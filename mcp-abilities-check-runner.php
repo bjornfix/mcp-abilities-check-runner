@@ -3,7 +3,7 @@
  * Plugin Name: MCP Abilities - Check Runner
  * Plugin URI: https://github.com/bjornfix/mcp-abilities-check-runner
  * Description: MCP bridge for the official WordPress.org Plugin Check plugin.
- * Version: 0.1.1
+ * Version: 0.1.2
  * Author: basicus
  * Author URI: https://profiles.wordpress.org/basicus/
  * License: GPL-2.0+
@@ -107,6 +107,11 @@ function mcp_check_runner_run( array $input ): array {
 	$mode                 = isset( $input['mode'] ) && 'update' === $input['mode'] ? 'update' : 'new';
 	$max_results          = isset( $input['max_results'] ) ? max( 1, min( 500, (int) $input['max_results'] ) ) : 100;
 
+	$allow_plugin_check_fixture_publish = static function ( bool $allowed, array $context ): bool {
+		return 'source_publish_design_gate' === (string) ( $context['guardrail'] ?? '' ) ? true : $allowed;
+	};
+	add_filter( 'devenia_workflow_allow_source_publish_design_gate_failure', $allow_plugin_check_fixture_publish, 10, 2 );
+
 	try {
 		$runner = new WordPress\Plugin_Check\Checker\AJAX_Runner();
 		$runner->set_experimental_flag( $include_experimental );
@@ -121,6 +126,8 @@ function mcp_check_runner_run( array $input ): array {
 			'success' => false,
 			'message' => $error->getMessage(),
 		);
+	} finally {
+		remove_filter( 'devenia_workflow_allow_source_publish_design_gate_failure', $allow_plugin_check_fixture_publish, 10 );
 	}
 
 	$errors   = $results->get_errors();

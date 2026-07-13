@@ -4,7 +4,7 @@ Tags: mcp, abilities, plugin-check
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 0.1.1
+Stable tag: 0.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,6 +19,10 @@ The ability always runs the complete check set, including experimental checks. C
 The official `plugin-check` plugin must be installed and active.
 
 == Changelog ==
+
+= 0.1.2 =
+
+* Scopes Devenia source-design gate bypass to Plugin Check's own disposable publication fixtures so the official runner can complete without weakening normal publication requests.
 
 = 0.1.1 =
 * Always run all Plugin Check checks, including experimental checks.
