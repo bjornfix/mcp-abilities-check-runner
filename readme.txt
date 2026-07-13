@@ -4,7 +4,7 @@ Tags: mcp, abilities, plugin-check
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 0.1.3
+Stable tag: 0.1.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,6 +19,10 @@ The ability always runs the complete check set, including experimental checks. C
 The official `plugin-check` plugin must be installed and active.
 
 == Changelog ==
+
+= 0.1.4 =
+
+* Raises the bounded analysis ceiling for large plugins to 1 GB and five minutes, then restores request limits.
 
 = 0.1.3 =
 

@@ -3,7 +3,7 @@
  * Plugin Name: MCP Abilities - Check Runner
  * Plugin URI: https://github.com/bjornfix/mcp-abilities-check-runner
  * Description: MCP bridge for the official WordPress.org Plugin Check plugin.
- * Version: 0.1.3
+ * Version: 0.1.4
  * Author: basicus
  * Author URI: https://profiles.wordpress.org/basicus/
  * License: GPL-2.0+
@@ -113,9 +113,11 @@ function mcp_check_runner_run( array $input ): array {
 	add_filter( 'devenia_workflow_allow_source_publish_design_gate_failure', $allow_plugin_check_fixture_publish, 10, 2 );
 	$previous_memory_limit = ini_get( 'memory_limit' );
 	wp_raise_memory_limit( 'admin' );
-	if ( function_exists( 'wp_convert_hr_to_bytes' ) && wp_convert_hr_to_bytes( (string) ini_get( 'memory_limit' ) ) < 536870912 ) {
-		ini_set( 'memory_limit', '512M' ); // phpcs:ignore WordPress.PHP.IniSet.memory_limit_Blacklisted -- Plugin Check/PHPCS requires a bounded analysis allowance.
+	if ( function_exists( 'wp_convert_hr_to_bytes' ) && wp_convert_hr_to_bytes( (string) ini_get( 'memory_limit' ) ) < 1073741824 ) {
+		ini_set( 'memory_limit', '1G' ); // phpcs:ignore WordPress.PHP.IniSet.memory_limit_Blacklisted -- Plugin Check/PHPCS requires a bounded analysis allowance for large plugins.
 	}
+	$previous_time_limit = ini_get( 'max_execution_time' );
+	set_time_limit( 300 );
 
 	try {
 		$runner = new WordPress\Plugin_Check\Checker\AJAX_Runner();
@@ -135,6 +137,9 @@ function mcp_check_runner_run( array $input ): array {
 		remove_filter( 'devenia_workflow_allow_source_publish_design_gate_failure', $allow_plugin_check_fixture_publish, 10 );
 		if ( false !== $previous_memory_limit ) {
 			ini_set( 'memory_limit', (string) $previous_memory_limit ); // phpcs:ignore WordPress.PHP.IniSet.memory_limit_Blacklisted -- Restore request state after the bounded checker run.
+		}
+		if ( false !== $previous_time_limit ) {
+			set_time_limit( (int) $previous_time_limit );
 		}
 	}
 
