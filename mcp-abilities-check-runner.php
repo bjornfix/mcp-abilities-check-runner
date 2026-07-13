@@ -3,7 +3,7 @@
  * Plugin Name: MCP Abilities - Check Runner
  * Plugin URI: https://github.com/bjornfix/mcp-abilities-check-runner
  * Description: MCP bridge for the official WordPress.org Plugin Check plugin.
- * Version: 0.1.4
+ * Version: 0.2.0
  * Author: basicus
  * Author URI: https://profiles.wordpress.org/basicus/
  * License: GPL-2.0+
@@ -102,6 +102,21 @@ function mcp_check_runner_run( array $input ): array {
 			'message' => 'Plugin slug or basename is required.',
 		);
 	}
+	if ( ! empty( $input['async'] ) ) {
+		$job_id = 'pcr_' . wp_generate_password( 24, false, false );
+		$job = array( 'job_id' => $job_id, 'status' => 'pending', 'plugin' => $plugin, 'created_at' => gmdate( 'c' ) );
+		if ( ! add_option( 'mcp_check_runner_job_' . $job_id, $job, '', false ) ) {
+			return array( 'success' => false, 'completed' => false, 'message' => 'Could not create the asynchronous Plugin Check job.' );
+		}
+		$scheduled_input = $input;
+		$scheduled_input['async'] = false;
+		if ( ! wp_schedule_single_event( time(), 'mcp_check_runner_async_job', array( $job_id, $scheduled_input ) ) ) {
+			delete_option( 'mcp_check_runner_job_' . $job_id );
+			return array( 'success' => false, 'completed' => false, 'message' => 'Could not schedule the asynchronous Plugin Check job.' );
+		}
+		spawn_cron();
+		return array( 'success' => true, 'completed' => false, 'job_id' => $job_id, 'status' => 'pending', 'plugin' => $plugin, 'message' => 'Plugin Check scheduled in the WordPress background worker.' );
+	}
 
 	$include_experimental = true;
 	$mode                 = isset( $input['mode'] ) && 'update' === $input['mode'] ? 'update' : 'new';
@@ -177,6 +192,31 @@ function mcp_check_runner_run( array $input ): array {
 	);
 }
 
+/** Execute a scheduled Plugin Check job and persist its exact result. */
+function mcp_check_runner_process_async_job( string $job_id, array $input ): void {
+	$key = 'mcp_check_runner_job_' . sanitize_key( $job_id );
+	$job = get_option( $key );
+	if ( ! is_array( $job ) ) { return; }
+	$job['status'] = 'running';
+	$job['started_at'] = gmdate( 'c' );
+	update_option( $key, $job, false );
+	$result = mcp_check_runner_run( $input );
+	$job['status'] = 'complete';
+	$job['completed_at'] = gmdate( 'c' );
+	$job['result'] = $result;
+	update_option( $key, $job, false );
+}
+add_action( 'mcp_check_runner_async_job', 'mcp_check_runner_process_async_job', 10, 2 );
+
+/** Return one server-owned asynchronous Plugin Check result. */
+function mcp_check_runner_job_status( array $input ): array {
+	$job_id = sanitize_key( (string) ( $input['job_id'] ?? '' ) );
+	$job = $job_id ? get_option( 'mcp_check_runner_job_' . $job_id ) : false;
+	return is_array( $job )
+		? array( 'success' => true, 'job' => $job )
+		: array( 'success' => false, 'message' => 'Plugin Check job not found.' );
+}
+
 /**
  * Register Plugin Check abilities.
  */
@@ -219,6 +259,7 @@ function mcp_register_check_runner_abilities(): void {
 						'default' => 'new',
 					),
 					'max_results'          => array( 'type' => 'integer', 'default' => 100 ),
+					'async'                => array( 'type' => 'boolean', 'default' => false, 'description' => 'Schedule the complete official check in a WordPress background request and return a job ID.' ),
 				),
 				'additionalProperties' => false,
 			),
@@ -227,6 +268,8 @@ function mcp_register_check_runner_abilities(): void {
 				'properties' => array(
 					'success'       => array( 'type' => 'boolean' ),
 					'completed'     => array( 'type' => 'boolean' ),
+					'job_id'        => array( 'type' => 'string' ),
+					'status'        => array( 'type' => 'string' ),
 					'passed'        => array( 'type' => 'boolean' ),
 					'policy'        => array( 'type' => 'string' ),
 					'plugin'        => array( 'type' => 'string' ),
@@ -254,6 +297,20 @@ function mcp_register_check_runner_abilities(): void {
 					'idempotent'  => true,
 				),
 			),
+		)
+	);
+
+	wp_register_ability(
+		'plugin-check/job-status',
+		array(
+			'label' => 'Get Plugin Check Job Status',
+			'description' => 'Returns the exact result of one asynchronous official Plugin Check run.',
+			'category' => 'site',
+			'input_schema' => array( 'type' => 'object', 'required' => array( 'job_id' ), 'properties' => array( 'job_id' => array( 'type' => 'string' ) ), 'additionalProperties' => false ),
+			'output_schema' => array( 'type' => 'object', 'properties' => array( 'success' => array( 'type' => 'boolean' ), 'job' => array( 'type' => 'object' ), 'message' => array( 'type' => 'string' ) ) ),
+			'execute_callback' => 'mcp_check_runner_job_status',
+			'permission_callback' => static function (): bool { return current_user_can( 'manage_options' ); },
+			'meta' => array( 'annotations' => array( 'readonly' => true, 'destructive' => false, 'idempotent' => true ), 'mcp' => array( 'public' => true, 'type' => 'tool' ) ),
 		)
 	);
 }

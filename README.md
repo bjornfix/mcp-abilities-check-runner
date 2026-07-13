@@ -8,7 +8,7 @@ MCP bridge for the official WordPress.org Plugin Check plugin.
 [![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple.svg)](https://php.net)
 
 **Tested up to:** 7.0
-**Stable tag:** 0.1.4
+**Stable tag:** 0.2.0
 **License:** GPLv2 or later
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -115,6 +115,10 @@ If you skip base-stack verification and start with add-ons immediately, troubles
 The official Plugin Check plugin must be installed and active on the target WordPress site.
 
 ## Changelog
+
+### 0.2.0
+
+- Adds a server-owned asynchronous Plugin Check job and status interface so complete official checks can finish beyond HTTP gateway timeouts without skipping checks.
 
 ### 0.1.4
 
