@@ -8,7 +8,7 @@ MCP bridge for the official WordPress.org Plugin Check plugin.
 [![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple.svg)](https://php.net)
 
 **Tested up to:** 7.0
-**Stable tag:** 0.1.2
+**Stable tag:** 0.1.3
 **License:** GPLv2 or later
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -115,6 +115,10 @@ If you skip base-stack verification and start with add-ons immediately, troubles
 The official Plugin Check plugin must be installed and active on the target WordPress site.
 
 ## Changelog
+
+### 0.1.3
+
+- Gives the bounded Plugin Check/PHPCS run a 512 MB analysis allowance and restores the request memory limit afterward.
 
 ### 0.1.2
 
