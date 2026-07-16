@@ -3,7 +3,7 @@
  * Plugin Name: MCP Abilities - Check Runner
  * Plugin URI: https://github.com/bjornfix/mcp-abilities-check-runner
  * Description: MCP bridge for the official WordPress.org Plugin Check plugin.
- * Version: 0.2.1
+ * Version: 0.2.2
  * Author: basicus
  * Author URI: https://profiles.wordpress.org/basicus/
  * License: GPL-2.0+
@@ -193,6 +193,31 @@ function mcp_check_runner_process_async_job( string $job_id, array $input ): voi
 	$job['status'] = 'running';
 	$job['started_at'] = gmdate( 'c' );
 	update_option( $key, $job, false );
+	ignore_user_abort( true );
+	if ( function_exists( 'set_time_limit' ) ) {
+		set_time_limit( 300 );
+	}
+	register_shutdown_function(
+		static function () use ( $key ): void {
+			$current = get_option( $key );
+			if ( ! is_array( $current ) || 'running' !== (string) ( $current['status'] ?? '' ) ) {
+				return;
+			}
+			$last_error = error_get_last();
+			$current['status'] = 'complete';
+			$current['completed_at'] = gmdate( 'c' );
+			$current['result'] = array(
+				'success'   => false,
+				'completed' => true,
+				'passed'    => false,
+				'code'      => 'async_job_terminated',
+				'message'   => is_array( $last_error ) && ! empty( $last_error['message'] )
+					? sanitize_text_field( (string) $last_error['message'] )
+					: 'The asynchronous Plugin Check request terminated before returning a result.',
+			);
+			update_option( $key, $current, false );
+		}
+	);
 	$result = mcp_check_runner_run( $input );
 	$job['status'] = 'complete';
 	$job['completed_at'] = gmdate( 'c' );
