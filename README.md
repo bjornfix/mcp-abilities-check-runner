@@ -120,7 +120,7 @@ The official Plugin Check plugin must be installed and active on the target Word
 
 ### 0.2.3
 
-- Allow large asynchronous checks up to a fixed server-owned ten-minute ceiling while preserving terminal failure receipts.
+- Preserve the server-configured PHP execution budget instead of mutating runtime limits from plugin code.
 
 ### 0.2.2
 

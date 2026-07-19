@@ -16,9 +16,6 @@
 
 declare( strict_types=1 );
 
-/** Fixed server-owned ceiling for large asynchronous Plugin Check runs. */
-const MCP_CHECK_RUNNER_ASYNC_TIME_LIMIT_SECONDS = 600;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -197,9 +194,6 @@ function mcp_check_runner_process_async_job( string $job_id, array $input ): voi
 	$job['started_at'] = gmdate( 'c' );
 	update_option( $key, $job, false );
 	ignore_user_abort( true );
-	if ( function_exists( 'set_time_limit' ) ) {
-		set_time_limit( MCP_CHECK_RUNNER_ASYNC_TIME_LIMIT_SECONDS );
-	}
 	register_shutdown_function(
 		static function () use ( $key ): void {
 			$current = get_option( $key );
