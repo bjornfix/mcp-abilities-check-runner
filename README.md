@@ -8,7 +8,7 @@ MCP bridge for the official WordPress.org Plugin Check plugin.
 [![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple.svg)](https://php.net)
 
 **Tested up to:** 7.0
-**Stable tag:** 0.2.2
+**Stable tag:** 0.2.3
 **License:** GPLv2 or later
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,6 +85,7 @@ It is especially useful when the manual version is repetitive enough that import
 
 Start with the base stack documentation:
 
+- [MCP Abilities – Check Runner](https://devenia.com/plugins/mcp-abilities-check-runner/)
 - [MCP Expose Abilities](https://github.com/bjornfix/mcp-expose-abilities)
 - [Getting Started](https://github.com/bjornfix/mcp-expose-abilities/wiki/Getting-Started)
 - [Install Order and Dependencies](https://github.com/bjornfix/mcp-expose-abilities/wiki/Install-Order-and-Dependencies)
@@ -109,12 +110,21 @@ If you skip base-stack verification and start with add-ons immediately, troubles
 ## Abilities
 
 - `plugin-check/run` - always runs the complete check set, including experimental checks. Warnings fail the gate.
+- `plugin-check/job-status` - returns the exact state or terminal result of one server-owned asynchronous check.
 
 ## Notes
 
 The official Plugin Check plugin must be installed and active on the target WordPress site.
 
 ## Changelog
+
+### 0.2.3
+
+- Allow large asynchronous checks up to a fixed server-owned ten-minute ceiling while preserving terminal failure receipts.
+
+### 0.2.2
+
+- Persist a terminal failure receipt when an asynchronous check is terminated unexpectedly.
 
 ### 0.2.1
 
@@ -160,6 +170,8 @@ GPL-2.0+
 
 ## Links
 
+- [Plugin Page](https://devenia.com/plugins/mcp-abilities-check-runner/)
+- [Download](https://downloads.devenia.com/mcp-abilities-check-runner.zip)
 - [MCP Expose Abilities](https://github.com/bjornfix/mcp-expose-abilities)
 - [GitHub Releases](https://github.com/bjornfix/mcp-abilities-check-runner/releases)
 

@@ -4,7 +4,7 @@ Tags: mcp, abilities, plugin-check
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 0.2.2
+Stable tag: 0.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,6 +19,9 @@ The ability always runs the complete check set, including experimental checks. C
 The official `plugin-check` plugin must be installed and active.
 
 == Changelog ==
+
+= 0.2.3 =
+* Allow large asynchronous checks up to a fixed server-owned ten-minute ceiling while preserving terminal failure receipts.
 
 = 0.2.2 =
 * Keep asynchronous checks alive for a bounded five-minute window and persist a terminal failure receipt if the request stops unexpectedly.
