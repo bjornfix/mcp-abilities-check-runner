@@ -2,10 +2,10 @@
 Contributors: basicus
 Tags: mcp, abilities, plugin-check
 Requires at least: 6.9
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.0
 Requires Plugins: plugin-check
-Stable tag: 0.2.3
+Stable tag: 0.2.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,6 +32,10 @@ Check Runner does not modify source files, install candidates or publish release
 Read the [product page](https://devenia.com/plugins/mcp-abilities-check-runner/) for the workflow and requirements.
 
 == Changelog ==
+
+= 0.2.4 =
+* Declare the official Plugin Check dependency and clarify WordPress core Abilities API requirements.
+* Explain inspection scope, background jobs and response limits.
 
 = 0.2.3 =
 * Preserve the server-configured PHP execution budget instead of mutating runtime limits from plugin code.

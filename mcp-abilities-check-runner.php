@@ -3,7 +3,7 @@
  * Plugin Name: MCP Abilities - Check Runner
  * Plugin URI: https://github.com/bjornfix/mcp-abilities-check-runner
  * Description: MCP bridge for the official WordPress.org Plugin Check plugin.
- * Version: 0.2.3
+ * Version: 0.2.4
  * Author: basicus
  * Author URI: https://profiles.wordpress.org/basicus/
  * License: GPL-2.0+
