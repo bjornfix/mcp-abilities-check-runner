@@ -15,11 +15,21 @@ MCP bridge for the official WordPress.org Plugin Check plugin.
 
 Download the stable plugin ZIP from https://downloads.devenia.com/mcp-abilities-check-runner.zip.
 
-This plugin exposes `plugin-check/run`, which runs the official Plugin Check runner against an installed plugin and returns structured errors and warnings.
+Check Runner connects an authenticated MCP client to official WordPress Plugin Check. It inspects an installed plugin and returns error and warning counts with structured findings.
 
-The ability always runs the complete check set, including experimental checks. Check and category filters are ignored for release-gate consistency. Warnings are not acceptable: the ability only reports success when there are zero errors and zero warnings.
+`plugin-check/run` runs synchronously by default. With `async: true`, it schedules a WordPress background job and returns a reference. Use `plugin-check/job-status` to read that job's state and final result. Scheduling success is not an inspection pass; a completed job can contain findings or an execution failure.
 
-The official [Plugin Check](https://wordpress.org/plugins/plugin-check/) plugin must be installed and active.
+The inspection always requests all available checks, including experimental checks. Requests to narrow checks or categories are ignored. The installed Plugin Check version determines the available checks. A pass requires zero errors and zero warnings; it does not prove functional correctness or guarantee WordPress.org approval.
+
+The response lists at most 100 findings by default, or up to 500 with `max_results`. Errors come before warnings. `truncated: true` means the displayed list is incomplete; counts cover the inspection result. There is no pagination. Use the official Plugin Check interface to inspect further details.
+
+The run action requires the WordPress permission to activate plugins. Job status requires the permission to manage site options. Background execution depends on WordPress cron and server resources. This version has no job cancellation or deletion action.
+
+The official [Plugin Check](https://wordpress.org/plugins/plugin-check/) plugin must be installed and active. WordPress 6.9 includes the Abilities API. Configure an authenticated MCP Adapter connection and verify that both abilities are discoverable before starting a background job. Depending on configuration, an exposure layer may be needed for the run action.
+
+Check Runner does not modify source files, install candidates or publish releases. Plugin Check owns the inspection and can exercise WordPress behaviour during checks; use a suitable test site.
+
+Read the [product page](https://devenia.com/plugins/mcp-abilities-check-runner/) for the workflow and requirements.
 
 == Changelog ==
 
