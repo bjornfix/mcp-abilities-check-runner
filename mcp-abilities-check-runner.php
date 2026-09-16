@@ -3,7 +3,7 @@
  * Plugin Name: MCP Abilities - Check Runner
  * Plugin URI: https://github.com/bjornfix/mcp-abilities-check-runner
  * Description: MCP bridge for the official WordPress.org Plugin Check plugin.
- * Version: 0.2.4
+ * Version: 0.2.5
  * Author: basicus
  * Author URI: https://profiles.wordpress.org/basicus/
  * License: GPL-2.0+
@@ -20,6 +20,9 @@ declare( strict_types=1 );
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+require_once __DIR__ . '/includes/devenia-updater-notice.php';
+mcp_abilities_check_runner_Updater_Notice::register( __FILE__ );
 
 /**
  * Check if Abilities API is available.

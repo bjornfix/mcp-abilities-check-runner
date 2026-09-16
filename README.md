@@ -2,14 +2,14 @@
 
 Run official WordPress Plugin Check from an authenticated MCP client and see whether an installed plugin finishes with zero errors and zero warnings. A scheduled background job is only a receipt; read its final result before making a release decision.
 
-[![Stable download](https://img.shields.io/badge/stable-0.2.4-blue)](https://downloads.devenia.com/mcp-abilities-check-runner.zip)
+[![Stable download](https://img.shields.io/badge/stable-0.2.5-blue)](https://downloads.devenia.com/mcp-abilities-check-runner.zip)
 [![License](https://img.shields.io/badge/license-GPLv2%2B-blue)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress](https://img.shields.io/badge/WordPress-6.9%2B-blue)](https://wordpress.org/)
 [![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple)](https://www.php.net/)
 
 **Tested up to:** 7.1
 
-**Stable tag:** 0.2.4
+**Stable tag:** 0.2.5
 
 **Tags:** mcp, abilities, plugin-check
 
@@ -111,12 +111,20 @@ A completed job can contain a clean inspection, reported findings or an executio
 
 ## Installation
 
+
+For update notifications in WordPress, install [Devenia MCP Updater](https://downloads.devenia.com/devenia-mcp-updater.zip). The updater is optional. You choose which plugins update automatically through WordPress.
+
 1. Download the [stable ZIP](https://downloads.devenia.com/mcp-abilities-check-runner.zip).
 2. Install and activate official Plugin Check on the target test site.
 3. Upload the Check Runner ZIP through WordPress's plugin installation screen and activate it.
 4. Configure the authenticated MCP connection and confirm that both abilities appear in discovery.
 
 ## Changelog
+
+
+### 0.2.5
+
+Add one dismissible Plugins-screen reminder when Devenia MCP Updater is missing or inactive, with persistent install or activate links. Automatic updates remain your choice in WordPress.
 
 ### 0.2.4
 

@@ -5,7 +5,7 @@ Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.0
 Requires Plugins: plugin-check
-Stable tag: 0.2.4
+Stable tag: 0.2.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,7 +31,14 @@ Check Runner does not modify source files, install candidates or publish release
 
 Read the [product page](https://devenia.com/plugins/mcp-abilities-check-runner/) for the workflow and requirements.
 
+== Update notifications ==
+
+For update notifications in WordPress, install [Devenia MCP Updater](https://downloads.devenia.com/devenia-mcp-updater.zip). The updater is optional. You choose which plugins update automatically through WordPress.
+
 == Changelog ==
+
+= 0.2.5 =
+* Add one dismissible Plugins-screen reminder when Devenia MCP Updater is missing or inactive, with persistent install or activate links. Automatic updates remain your choice in WordPress.
 
 = 0.2.4 =
 * Declare the official Plugin Check dependency and clarify WordPress core Abilities API requirements.
